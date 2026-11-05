@@ -32,8 +32,36 @@ class ReceitasTopsApp extends StatelessWidget {
   }
 }
 
-class PaginaInicial extends StatelessWidget {
+class PaginaInicial extends StatefulWidget {
   const PaginaInicial({super.key});
+
+  @override
+  State<PaginaInicial> createState() => _PaginaInicialState();
+}
+
+class _PaginaInicialState extends State<PaginaInicial> {
+  final TextEditingController _controladorBusca = TextEditingController();
+  String? _erroBusca;
+  String? _termoPesquisado;
+
+  @override
+  void dispose() {
+    _controladorBusca.dispose();
+    super.dispose();
+  }
+
+  void _pesquisar() {
+    final termo = _controladorBusca.text.trim();
+    setState(() {
+      if (termo.isEmpty) {
+        _erroBusca = 'Digite o nome de uma receita para pesquisar.';
+        _termoPesquisado = null;
+      } else {
+        _erroBusca = null;
+        _termoPesquisado = termo;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +105,72 @@ class PaginaInicial extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
+            const SizedBox(height: 22),
+            TextField(
+              key: const ValueKey('campo-busca-receita'),
+              controller: _controladorBusca,
+              textInputAction: TextInputAction.search,
+              onSubmitted: (_) => _pesquisar(),
+              onChanged: (_) {
+                if (_erroBusca != null || _termoPesquisado != null) {
+                  setState(() {
+                    _erroBusca = null;
+                    _termoPesquisado = null;
+                  });
+                }
+              },
+              decoration: InputDecoration(
+                labelText: 'Nome da receita',
+                hintText: 'Ex.: bolo de cenoura',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                errorText: _erroBusca,
+              ),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _pesquisar,
+                icon: const Icon(Icons.search),
+                label: const Text('Pesquisar'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: verdeEscuro,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+            ),
+            if (_termoPesquisado != null) ...[
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE9F0E7),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Pesquisa recebida: “$_termoPesquisado”',
+                      style: const TextStyle(
+                        color: verdeEscuro,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Os resultados ainda são provisórios.',
+                      style: TextStyle(color: Color(0xFF777D75), fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 22),
             Container(
               width: double.infinity,
